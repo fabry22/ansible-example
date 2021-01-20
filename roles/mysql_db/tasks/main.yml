@@ -1,0 +1,36 @@
+---
+- name: Print path to mount
+  ansible.builtin.debug:
+    msg:
+    - "Path to mount is: {{ role_path }}/scripts/"
+- name: Run a Data container.
+  docker_container:
+    image: busybox:latest
+    name: data
+    state: present
+    volumes: 
+      - "{{ role_path }}/scripts/:/docker-entrypoint-initdb.d/"
+      - dummy:/var/lib/mysql
+
+- name: Run MySQL container.
+  docker_container:
+    image: mysql:5.7
+    name: mysql-db
+    state: started
+    volumes_from: data
+    restart: true
+    ports: "{{ mysql_port }}:{{ mysql_port }}"
+    env:
+      MYSQL_ROOT_PASSWORD: "{{ mysql_root_password }}"
+      MYSQL_DATABASE: "{{ mysql_database }}" 
+      MYSQL_USER: "{{ mysql_user }}" 
+      MYSQL_PASSWORD: "{{ mysql_password }}"
+
+- name: Wait for mysql server to start.
+  local_action:
+    module: wait_for
+    host: "{{ mysql_host }}"
+    port: "{{ mysql_port }}"
+    delay: 10
+    timeout: 300
+    state: started

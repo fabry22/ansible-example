@@ -1,0 +1,9 @@
+---
+# defaults configs for db
+mysql_root_password : "p@ss/root"
+mysql_database : "db"
+mysql_user : "django"
+mysql_password : "p@ss"
+mysql_port : "3306"
+mysql_host : "127.0.0.1"
+mysql_init_data : "modems.sql"

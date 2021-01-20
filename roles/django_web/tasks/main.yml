@@ -1,0 +1,7 @@
+---
+- name: Run Python 3 container
+  docker_container:
+      image: "python:{{ python_version }}"
+      name: django-web
+      state: started
+      ports: "{{ django_port }}:{{ django_port }}"

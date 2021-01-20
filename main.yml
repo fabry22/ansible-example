@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  gather_facts: no
+  connection: local
+  become: true
+
+  roles: 
+    - mysql_db
