@@ -1,8 +1,4 @@
 ---
-- name: Print path to mount
-  ansible.builtin.debug:
-    msg:
-    - "Path to mount is: {{ role_path }}/scripts/"
 - name: Run a Data container.
   docker_container:
     image: busybox:latest
@@ -25,7 +21,7 @@
       - "{{ mysql_port }}"
     networks:
       - name: "{{ docker_net }}"
-        ipv4_address: "172.1.1.100"
+        ipv4_address: "{{ mysql_ip }}"
     env:
       MYSQL_ROOT_PASSWORD: "{{ mysql_root_password }}"
       MYSQL_DATABASE: "{{ mysql_database }}" 

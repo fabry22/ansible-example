@@ -9,9 +9,7 @@
     interactive: yes
     networks:
       - name: "{{ docker_net }}"
-        ipv4_address: "172.1.1.200"
-#    volumes:
-#      - "dummy:{{ app_dir }}"
+        ipv4_address: "{{ django_web_ip }}"
 
 - name: Add Python container to inventory.
   add_host:
@@ -23,7 +21,6 @@
   delegate_to: django-web
   apt:
     name:
-    #  - "python{{ python_version }}"
       - "python{{ pip_version }}-pip "
       - apt-utils
       - libmariadb-dev
@@ -51,6 +48,7 @@
   pip:
     requirements: "{{ app_dir }}/requirements.txt"
 
-#- name: Launch server.
-#  delegate_to: django-web
-#  raw: "python {{ app_dir }}/web/manage.py runserver 0.0.0.0:{{ django_port }}"
+- name: Launch server.
+  delegate_to: django-web
+  raw:
+    "cd {{ app_dir }} && python3 web/manage.py runserver 0.0.0.0:{{ django_port }}"
