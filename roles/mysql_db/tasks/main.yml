@@ -6,7 +6,6 @@
     state: present
     volumes: 
       - "{{ role_path }}/scripts/:/docker-entrypoint-initdb.d/"
-      #- dummy:/var/lib/mysql
 
 - name: Run MySQL container.
   become: yes
@@ -17,8 +16,6 @@
     volumes_from: data
     restart: true
     ports: "{{ mysql_port }}:{{ mysql_port }}"
-    published_ports:
-      - "{{ mysql_port }}"
     networks:
       - name: "{{ docker_net }}"
         ipv4_address: "{{ mysql_ip }}"
