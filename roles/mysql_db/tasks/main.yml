@@ -10,9 +10,10 @@
     state: present
     volumes: 
       - "{{ role_path }}/scripts/:/docker-entrypoint-initdb.d/"
-      - dummy:/var/lib/mysql
+      #- dummy:/var/lib/mysql
 
 - name: Run MySQL container.
+  become: yes
   docker_container:
     image: mysql:5.7
     name: mysql-db
@@ -20,6 +21,11 @@
     volumes_from: data
     restart: true
     ports: "{{ mysql_port }}:{{ mysql_port }}"
+    published_ports:
+      - "{{ mysql_port }}"
+    networks:
+      - name: "{{ docker_net }}"
+        ipv4_address: "172.1.1.100"
     env:
       MYSQL_ROOT_PASSWORD: "{{ mysql_root_password }}"
       MYSQL_DATABASE: "{{ mysql_database }}" 
@@ -31,6 +37,6 @@
     module: wait_for
     host: "{{ mysql_host }}"
     port: "{{ mysql_port }}"
-    delay: 10
+    delay: 30
     timeout: 300
     state: started

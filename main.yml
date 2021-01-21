@@ -1,8 +1,19 @@
 ---
 - hosts: localhost
-  gather_facts: no
   connection: local
-  become: true
 
-  roles: 
+  vars:
+    docker_net : "docker_exchange"
+
+  pre_tasks:
+    - name: Create docker network
+      community.general.docker_network:
+        name: "{{ docker_net }}"
+        ipam_config:
+          - subnet: 172.1.1.0/23
+            gateway: 172.1.1.1
+            iprange: 172.1.1.0/24
+  roles:
+    #- docker
     - mysql_db
+    - django_web

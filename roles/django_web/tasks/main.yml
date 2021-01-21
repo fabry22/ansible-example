@@ -1,7 +1,56 @@
 ---
-- name: Run Python 3 container
+- name: Run Python container.
   docker_container:
-      image: "python:{{ python_version }}"
-      name: django-web
-      state: started
-      ports: "{{ django_port }}:{{ django_port }}"
+    image: "python:{{ python_img_version }}"
+    name: django-web
+    state: started
+    ports: "{{ django_port }}:{{ django_port }}"
+    detach: yes
+    interactive: yes
+    networks:
+      - name: "{{ docker_net }}"
+        ipv4_address: "172.1.1.200"
+#    volumes:
+#      - "dummy:{{ app_dir }}"
+
+- name: Add Python container to inventory.
+  add_host:
+    name: django-web
+    ansible_connection: community.general.docker
+  changed_when: false
+
+- name: Install apt packages.
+  delegate_to: django-web
+  apt:
+    name:
+    #  - "python{{ python_version }}"
+      - "python{{ pip_version }}-pip "
+      - apt-utils
+      - libmariadb-dev
+      - gcc
+      - git
+    state: latest
+    update_cache: yes
+
+- name: Create django app dir.
+  delegate_to: django-web
+  file:
+    path: "{{ app_dir }}"
+    state: directory
+    mode: '0644'
+
+- name: Pull django app code.
+  delegate_to: django-web
+  git:
+    repo: "{{ app_repo }}"
+    dest: "{{ app_dir }}"
+    update: yes
+
+- name: Update requirements.
+  delegate_to: django-web
+  pip:
+    requirements: "{{ app_dir }}/requirements.txt"
+
+#- name: Launch server.
+#  delegate_to: django-web
+#  raw: "python {{ app_dir }}/web/manage.py runserver 0.0.0.0:{{ django_port }}"
